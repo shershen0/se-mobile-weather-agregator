@@ -1,20 +1,18 @@
-package hse.ru.weather
+package hse.ru.se_mobile_weather_agregator
 
-import android.icu.number.Notation.simple
-import androidx.appcompat.app.AppCompatActivity
+//import hse.ru.weather.databinding.ActivityMainBinding
 import android.os.Bundle
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import android.location.Address
-import android.location.Location
-import android.location.LocationManager
-import hse.ru.weather.databinding.ActivityMainBinding
+import androidx.appcompat.app.AppCompatActivity
+import hse.ru.se_mobile_weather_agregator.databinding.ActivityMainBinding
 import okhttp3.*
 import java.io.IOException
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import org.json.JSONException
+import org.json.JSONObject
+import java.io.File
 
-
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(){
     lateinit var binding: ActivityMainBinding
     lateinit var temperArray: ArrayList<Double>
     lateinit var typeWeather: ArrayList<String> // "Rain"
@@ -22,23 +20,68 @@ class MainActivity : AppCompatActivity() {
     lateinit var pressureArray: ArrayList<Double>
     private val client = OkHttpClient()
 
+
+//    var client = OkHttpClient()
+//    var request = OkHttpRequest(client)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        run("http://api.weatherapi.com/v1/current.json?key=dc142bca70ce4a92bca105853221910&q=Saint-Petersburg&aqi=no")
+        run("http://api.weatherapi.com/v1/forecast.json?key=dc142bca70ce4a92bca105853221910&q=Saint-Petersburg&days=1&aqi=no&alerts=yes")
     }
 
+//
+//    class SimpleEntity  (  // no-arg constructor, getters, and setters
+//        protected var name: String
+//    )
+
+
     fun run(url: String) {
+        System.out.println("RUNRUNRUNRUNRURNRUN")
         val request = Request.Builder()
             .url(url)
             .build()
 
         client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {}
+            override fun onFailure(call: Call, e: IOException) {
+                println("ERROR IN HTTP")
+                return
+            }
             override fun onResponse(call: Call, response: Response) {
+                println("OK")
+                println(response.headers())
 
-                response.body()
+                val responseData = response.body()?.string()
+                runOnUiThread{
+                    try {
+                        var json = responseData?.let { JSONObject(it) }
+                        println("Request Successful!!")
+                        println(json)
+//                        this@MainActivity.fetchComplete()
+                    } catch (e: JSONException) {
+                        e.printStackTrace()
+                    }
+                }
+
             }
         })
     }
+
+
+    fun deserializeWeatherForecast(response: ResponseBody?) {
+        val gson = Gson()
+        val responseBody = response
+        try {
+
+//            mArray = new JSONArray(responseString);
+//            for (int i = 0; i < mArray.length(); i++) {
+//                JSONObject mJsonObject = mArray.getJSONObject(i);
+//                Log.d("OutPut", mJsonObject.getString("NeededString"));
+//            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
+
+
 }
