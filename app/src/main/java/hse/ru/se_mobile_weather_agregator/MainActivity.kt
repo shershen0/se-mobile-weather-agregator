@@ -1,8 +1,13 @@
 package hse.ru.se_mobile_weather_agregator
 
 //import hse.ru.weather.databinding.ActivityMainBinding
+import android.app.Notification
+import android.app.NotificationManager
 import android.os.Bundle
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import hse.ru.se_mobile_weather_agregator.databinding.ActivityMainBinding
 import okhttp3.*
 import java.io.IOException
@@ -28,6 +33,32 @@ class MainActivity : AppCompatActivity(){
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         run("http://api.weatherapi.com/v1/forecast.json?key=dc142bca70ce4a92bca105853221910&q=Saint-Petersburg&days=1&aqi=no&alerts=yes")
+
+        for (tw in typeWeather) {
+            if (tw.contains("rain") or tw.contains("rainy")) {
+                val builder: NotificationCompat.Builder = NotificationCompat.Builder(this)
+                    .setSmallIcon(R.drawable.ic_android_black_24dp)
+                    .setContentTitle("Weather Agregator")
+                    .setContentText("Rain is forecasted today")
+
+                val notification: Notification = builder.build()
+                val notificationManag = NotificationManagerCompat.from(this)
+                notificationManag.notify(1, builder.build())
+
+                val notificationManager =
+                    getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+                notificationManager.notify(1, notification)
+                break
+            }
+        }
+
+        val weather: TextView = binding.weatherType
+        weather.text = typeWeather[0]
+        val pressure: TextView = binding.pressureValue
+        pressure.text = humidArray[0].toString()
+        val temperature: TextView = binding.temperatureValue
+        temperature.text = temperArray[0].toString()
+
     }
 
 //
